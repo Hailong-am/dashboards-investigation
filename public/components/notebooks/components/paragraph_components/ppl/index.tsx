@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useMemo, useContext } from 'react';
+import React, { useMemo, useContext, useState } from 'react';
 import {
   EuiCodeBlock,
   EuiCompressedFormRow,
@@ -13,9 +13,12 @@ import {
   EuiSpacer,
   EuiText,
   EuiToolTip,
+  EuiButtonGroup,
 } from '@elastic/eui';
 import { useObservable, useEffectOnce } from 'react-use';
 import { NoteBookServices } from 'public/types';
+import { EChartsVisualization } from '../echarts_visualization';
+import { buildChartOption } from '../../../../../../public/utils/chart_inference';
 import { ParagraphState } from '../../../../../../common/state/paragraph_state';
 import {
   PPL_DOCUMENTATION_URL,
@@ -134,6 +137,21 @@ export const PPLParagraph = ({
   const data = useMemo(() => getQueryOutputData(queryObject ?? {}), [queryObject]);
   const isRunning = paragraphValue.uiState?.isRunning;
 
+  const chartOption = useMemo(() => buildChartOption(queryObject?.schema || [], data), [
+    queryObject?.schema,
+    data,
+  ]);
+
+  const [viewMode, setViewMode] = useState<string>(chartOption ? 'chart' : 'table');
+
+  const viewToggleOptions = useMemo(
+    () => [
+      { id: 'table', label: 'Table' },
+      { id: 'chart', label: 'Chart' },
+    ],
+    []
+  );
+
   const paragarphDataSource = paragraphValue?.dataSourceMDSId;
 
   if (!paragraphRegistry) {
@@ -216,11 +234,27 @@ export const PPLParagraph = ({
                 </EuiFlexGroup>
               )}
               <EuiSpacer size="xs" />
-              <QueryDataGridMemo
-                rowCount={queryObject?.datarows?.length || 0}
-                queryColumns={columns}
-                dataValues={data}
-              />
+              {chartOption && (
+                <>
+                  <EuiButtonGroup
+                    legend="View mode"
+                    options={viewToggleOptions}
+                    idSelected={viewMode}
+                    onChange={(id) => setViewMode(id)}
+                    buttonSize="compressed"
+                  />
+                  <EuiSpacer size="s" />
+                </>
+              )}
+              {viewMode === 'chart' && chartOption ? (
+                <EChartsVisualization option={chartOption} />
+              ) : (
+                <QueryDataGridMemo
+                  rowCount={queryObject?.datarows?.length || 0}
+                  queryColumns={columns}
+                  dataValues={data}
+                />
+              )}
             </div>
           ) : (
             <EuiCodeBlock>{error || 'No result'}</EuiCodeBlock>

@@ -18,7 +18,8 @@ import { useEffectOnce, useObservable } from 'react-use';
 import { useContext } from 'react';
 import { ParagraphState } from '../../../../../../common/state/paragraph_state';
 import { NotebookReactContext } from '../../../context_provider/context_provider';
-import { NotebookType } from '../../../../../../common/types/notebooks';
+import { NotebookType, FindingParagraphParameters } from '../../../../../../common/types/notebooks';
+import { FindingVisualization } from '../finding_visualization';
 
 const inputPlaceholderString =
   'Type %md on the first line to define the input type. \nCode block starts here.';
@@ -123,19 +124,24 @@ export const MarkdownParagraph = ({
       {isRunning ? (
         <EuiLoadingContent />
       ) : (
-        <EuiText
-          className="wrapAll markdown-output-text"
-          data-test-subj="markdownOutputText"
-          size="s"
-          style={{
-            // TODO remove this when add buttons
-            ...(notebookType !== NotebookType.AGENTIC && { marginBottom: '1.5rem' }),
-          }}
-        >
-          <EuiMarkdownFormat>
-            {ParagraphState.getOutput(paragraphValue)?.result || ''}
-          </EuiMarkdownFormat>
-        </EuiText>
+        <>
+          <EuiText
+            className="wrapAll markdown-output-text"
+            data-test-subj="markdownOutputText"
+            size="s"
+            style={{
+              // TODO remove this when add buttons
+              ...(notebookType !== NotebookType.AGENTIC && { marginBottom: '1.5rem' }),
+            }}
+          >
+            <EuiMarkdownFormat>
+              {ParagraphState.getOutput(paragraphValue)?.result || ''}
+            </EuiMarkdownFormat>
+          </EuiText>
+          <FindingVisualization
+            query={(paragraphValue.input.parameters as FindingParagraphParameters)?.query}
+          />
+        </>
       )}
     </>
   );

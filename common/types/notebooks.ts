@@ -176,10 +176,20 @@ export interface PERAgentHypothesisFinding {
   importance: number;
   evidence: string;
   type?: string;
+  query?: {
+    index: string;
+    type: 'dsl' | 'ppl';
+    body: string;
+  };
 }
 
 export interface FindingParagraphParameters {
   finding?: Omit<PERAgentHypothesisFinding, 'id'> & { feedback?: 'CONFIRMED' | 'REJECTED' };
+  query?: {
+    index: string;
+    type: 'dsl' | 'ppl';
+    body: string;
+  };
 }
 
 export interface PERAgentHypothesisItem {

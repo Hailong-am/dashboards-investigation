@@ -65,6 +65,7 @@ Your final result JSON must include:
   * **"description"**: Clear statement of the finding
   * **"importance"**: Rating from 0-100 indicating overall significance
   * **"evidence"**: Specific data, quotes, or observations supporting this finding
+  * **"query"**: (Optional) If this finding was derived from a search query, include the query details as an object with "index" (string), "type" ("dsl" or "ppl"), and "body" (the query string). Extract this from the [QUERY_INFO] block in the executor step output.
 - **"hypotheses"**: An array of hypothesis objects, each containing:
   * **"id"**: A unique identifier for the hypothesis (e.g., "H1")
   * **"title"**: A concise title for the hypothesis
@@ -84,7 +85,8 @@ Your final result JSON must include:
     "id": string,
     "description": string,
     "importance": number (0-100),
-    "evidence": string
+    "evidence": string,
+    "query": { "index": string, "type": "dsl" | "ppl", "body": string } (optional)
 }
 \`\`\`
 
@@ -370,6 +372,13 @@ Remember: Respond only in JSON format following the required schema.`;
               planner_prompt_template: plannerPromptTemplate,
               planner_with_history_template: plannerWithHistoryTemplate,
               reflect_prompt_template: reflectPromptTemplate,
+              executor_system_prompt: `When you execute a search query tool (e.g. SearchIndexTool), always include the query details at the end of your response in this exact format:
+[QUERY_INFO]
+index: <index_name>
+type: <dsl|ppl>
+body: <the full query body as a single-line JSON string>
+[/QUERY_INFO]
+This information is critical for the planner to generate visualizations.`,
             },
           },
         });

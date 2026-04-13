@@ -204,7 +204,7 @@ export const useInvestigation = () => {
 
       // Create new finding paragraphs
       const paragraphsToCreate = sortedFindings.map(
-        ({ importance, description, evidence, type }) => ({
+        ({ importance, description, evidence, type, query }) => ({
           input: {
             inputText: `%md ${evidence}`.trim(),
             inputType: 'MARKDOWN',
@@ -214,6 +214,7 @@ export const useInvestigation = () => {
                 description,
                 type,
               },
+              ...(query && { query }),
             } as FindingParagraphParameters,
           },
           aiGenerated: true,
